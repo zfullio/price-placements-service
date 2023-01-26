@@ -1,0 +1,10 @@
+app:
+  name: 'Проверка номеров в фидах'
+
+google_sheets:
+  service_key_path: 'file.json'
+  spreadsheet_id: 'id spreadsheet with config'
+
+tg:
+  token: 'token'
+  chat: "00000000"
