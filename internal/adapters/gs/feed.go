@@ -1,8 +1,8 @@
 package gs
 
 import (
-	"checkphones/internal/domain/entity"
 	"fmt"
+	"github.com/zfullio/price-placements-service/internal/domain/entity"
 	"google.golang.org/api/sheets/v4"
 	"strings"
 )

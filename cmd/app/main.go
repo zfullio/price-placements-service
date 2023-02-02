@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/zfullio/price-placements-service/internal/app"
+	"github.com/zfullio/price-placements-service/internal/config"
 	"log"
-	"price-placements-service/internal/app"
-	"price-placements-service/internal/config"
 )
 
 func main() {

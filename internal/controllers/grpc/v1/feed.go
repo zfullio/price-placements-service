@@ -3,8 +3,8 @@ package v1
 import (
 	"context"
 	"fmt"
-	"price-placements-service/internal/domain/entity"
-	"price-placements-service/pb"
+	"github.com/zfullio/price-placements-service/internal/domain/entity"
+	"github.com/zfullio/price-placements-service/pb"
 )
 
 func (s Server) CheckPhonesAll(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {

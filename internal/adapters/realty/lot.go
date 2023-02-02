@@ -3,7 +3,7 @@ package realty
 import (
 	"fmt"
 	placementsFeeds "github.com/zfullio/price-placements"
-	"price-placements-service/internal/domain/entity"
+	"github.com/zfullio/price-placements-service/internal/domain/entity"
 	"regexp"
 	"strconv"
 	"strings"

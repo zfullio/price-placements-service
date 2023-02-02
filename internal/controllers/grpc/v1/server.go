@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"price-placements-service/internal/domain/policy"
-	"price-placements-service/pb"
+	"github.com/zfullio/price-placements-service/internal/domain/policy"
+	"github.com/zfullio/price-placements-service/pb"
 )
 
 type Server struct {

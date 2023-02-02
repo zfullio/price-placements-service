@@ -3,18 +3,18 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/zfullio/price-placements-service/internal/adapters/gs"
+	"github.com/zfullio/price-placements-service/internal/config"
+	priceplacement "github.com/zfullio/price-placements-service/internal/controllers/grpc/v1"
+	"github.com/zfullio/price-placements-service/internal/domain/policy"
+	"github.com/zfullio/price-placements-service/internal/domain/service"
+	"github.com/zfullio/price-placements-service/pb"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"price-placements-service/internal/adapters/gs"
-	"price-placements-service/internal/config"
-	priceplacement "price-placements-service/internal/controllers/grpc/v1"
-	"price-placements-service/internal/domain/policy"
-	"price-placements-service/internal/domain/service"
-	"price-placements-service/pb"
 )
 
 type App struct {

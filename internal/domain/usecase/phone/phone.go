@@ -2,7 +2,7 @@ package phone
 
 import (
 	"fmt"
-	"price-placements-service/internal/domain/entity"
+	"github.com/zfullio/price-placements-service/internal/domain/entity"
 )
 
 type PhService interface {

@@ -2,8 +2,8 @@ package gs
 
 import (
 	"fmt"
+	"github.com/zfullio/price-placements-service/internal/domain/entity"
 	"google.golang.org/api/sheets/v4"
-	"price-placements-service/internal/domain/entity"
 	"strconv"
 	"strings"
 )

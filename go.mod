@@ -1,4 +1,4 @@
-module price-placements-service
+module github.com/zfullio/github.com/zfullio/price-placements-service
 
 go 1.19
 

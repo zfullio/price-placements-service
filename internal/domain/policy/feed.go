@@ -2,13 +2,13 @@ package policy
 
 import (
 	"fmt"
-	"price-placements-service/internal/adapters/avito"
-	"price-placements-service/internal/adapters/cian"
-	"price-placements-service/internal/adapters/domclick"
-	"price-placements-service/internal/adapters/realty"
-	"price-placements-service/internal/domain/entity"
-	"price-placements-service/internal/domain/service"
-	"price-placements-service/internal/domain/usecase/phone"
+	"github.com/zfullio/price-placements-service/internal/adapters/avito"
+	"github.com/zfullio/price-placements-service/internal/adapters/cian"
+	"github.com/zfullio/price-placements-service/internal/adapters/domclick"
+	"github.com/zfullio/price-placements-service/internal/adapters/realty"
+	"github.com/zfullio/price-placements-service/internal/domain/entity"
+	"github.com/zfullio/price-placements-service/internal/domain/service"
+	"github.com/zfullio/price-placements-service/internal/domain/usecase/phone"
 )
 
 type FeedPolicy struct {
