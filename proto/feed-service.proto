@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option go_package = "price-placements/pb";
+
+service FeedService{
+  rpc CheckPhonesAll(CheckRequest) returns (CheckResponse);
+  rpc CheckPhonesRealty(CheckRequest) returns (CheckResponse);
+  rpc CheckPhonesCian(CheckRequest) returns (CheckResponse);
+  rpc CheckPhonesAvito(CheckRequest) returns (CheckResponse);
+  rpc CheckPhonesDomclick(CheckRequest) returns (CheckResponse);
+  rpc ValidateFeed(ValidateFeedRequest) returns (ValidateFeedResponse);
+  rpc ValidateFeedAll(ValidateFeedAllRequest) returns (ValidateFeedAllResponse);
+}
+
+message CheckRequest{
+  string spreadsheet_id = 1;
+}
+
+message CheckResponse{
+  repeated string result = 1;
+}
+
+enum Placement {
+  PLACEMENT_YANDEX_REALTY = 0;
+  PLACEMENT_CIAN = 1;
+  PLACEMENT_AVITO = 2;
+  PLACEMENT_DOMCLICK = 3;
+}
+
+message ValidateFeedRequest{
+  string feed_url = 1;
+  Placement placement = 2;
+}
+
+message ValidateFeedResponse{
+  repeated string result = 1;
+}
+
+message ValidateFeedAllRequest{
+  string spreadsheet_id = 1;
+}
+
+message ValidateFeedAllResponse{
+  repeated string result = 1;
+}

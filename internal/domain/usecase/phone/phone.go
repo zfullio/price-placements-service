@@ -1,8 +1,8 @@
 package phone
 
 import (
-	"checkphones/internal/domain/entity"
 	"fmt"
+	"price-placements-service/internal/domain/entity"
 )
 
 type PhService interface {
@@ -40,13 +40,13 @@ func (u phoneUseCase) CheckNumbers(spreadsheetID string, feedUrl string, placeme
 		lotObjectNums := v
 		phoneObjectNums, ok := objectsFromPhones[obj]
 		if !ok {
-			fmt.Printf("Не нахожу ЖК %s в согласованных номерах\n", obj)
+			result = append(result, fmt.Sprintf("%s: %s Не нахожу ЖК '%s' в согласованных номерах\n", placement, feedUrl, obj))
 			continue
 		}
 		for _, lotObjectNum := range lotObjectNums {
 			for _, phoneObjectNum := range phoneObjectNums {
 				if lotObjectNum != phoneObjectNum {
-					result = append(result, fmt.Sprintf("Объект: %s. Ожидалось: %v. Получено: %v", obj, phoneObjectNum, lotObjectNum))
+					result = append(result, fmt.Sprintf("Площадка %s. Объект: %s. Ожидалось: %v. Получено: %v", placement, obj, phoneObjectNum, lotObjectNum))
 				}
 			}
 		}

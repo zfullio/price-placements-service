@@ -8,3 +8,7 @@ google_sheets:
 tg:
   token: 'token'
   chat: "00000000"
+
+grpc:
+  ip: 'localhost'
+  port: 5555

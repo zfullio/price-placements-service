@@ -1,21 +1,26 @@
 package service
 
 import (
-	"checkphones/internal/domain/entity"
+	"price-placements-service/internal/domain/entity"
 )
 
 type LotRepository interface {
 	Get(url string) (lots []entity.Lot, err error)
+	Validate(url string) (results []string, err error)
 }
 
-type lotService struct {
+type LotService struct {
 	repo LotRepository
 }
 
-func NewLotService(repo LotRepository) *lotService {
-	return &lotService{repo: repo}
+func NewLotService(repo LotRepository) *LotService {
+	return &LotService{repo: repo}
 }
 
-func (ls lotService) Get(url string) (lots []entity.Lot, err error) {
+func (ls LotService) Get(url string) (lots []entity.Lot, err error) {
 	return ls.repo.Get(url)
+}
+
+func (ls LotService) Validate(url string) (results []string, err error) {
+	return ls.repo.Validate(url)
 }

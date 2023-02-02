@@ -1,9 +1,9 @@
 package gs
 
 import (
-	"checkphones/internal/domain/entity"
 	"fmt"
 	"google.golang.org/api/sheets/v4"
+	"price-placements-service/internal/domain/entity"
 	"strconv"
 	"strings"
 )
@@ -35,11 +35,11 @@ func (pr phoneRepository) Get(spreadsheetID string) (phones []entity.Phone, err 
 
 		number, ok := row[2].(string)
 		if !ok {
-			return nil, fmt.Errorf("не могу обработать номер в gsheets")
+			return nil, fmt.Errorf("не могу получить номер в gsheets")
 		}
 		convNumber, err := strconv.Atoi(number)
 		if err != nil {
-			return nil, fmt.Errorf("не могу обработать сконвертировать номер в число")
+			return nil, fmt.Errorf("не могу сконвертировать номер: '%s' в число в gsheets", number)
 
 		}
 

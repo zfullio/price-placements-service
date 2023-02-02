@@ -7,9 +7,10 @@ import (
 import "fmt"
 
 type Config struct {
-	App `yaml:"app"`
-	GS  `yaml:"google_sheets"`
-	TG  `yaml:"tg"`
+	App  `yaml:"app"`
+	GS   `yaml:"google_sheets"`
+	TG   `yaml:"tg"`
+	GRPC `yaml:"grpc"`
 }
 
 type App struct {
@@ -24,6 +25,11 @@ type GS struct {
 type TG struct {
 	Token string `yaml:"token"`
 	Chat  int64  `yaml:"chat"`
+}
+
+type GRPC struct {
+	IP   string `yaml:"ip"`
+	Port int    `yaml:"port"`
 }
 
 func NewConfig(filePath string) (*Config, error) {

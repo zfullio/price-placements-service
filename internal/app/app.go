@@ -1,80 +1,71 @@
 package app
 
 import (
-	"checkphones/internal/adapters/avito"
-	"checkphones/internal/adapters/cian"
-	"checkphones/internal/adapters/domclick"
-	"checkphones/internal/adapters/gs"
-	"checkphones/internal/adapters/realty"
-	"checkphones/internal/config"
-	"checkphones/internal/domain/entity"
-	"checkphones/internal/domain/service"
-	"checkphones/internal/domain/usecase/phone"
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
-	"strings"
+	"google.golang.org/grpc"
+	"log"
+	"net"
+	"price-placements-service/internal/adapters/gs"
+	"price-placements-service/internal/config"
+	priceplacement "price-placements-service/internal/controllers/grpc/v1"
+	"price-placements-service/internal/domain/policy"
+	"price-placements-service/internal/domain/service"
+	"price-placements-service/pb"
 )
 
-func Run(ctx context.Context, cfg *config.Config) {
+type App struct {
+	cfg                  config.Config
+	grpcServer           *grpc.Server
+	productServiceServer pb.FeedServiceServer
+}
+
+func NewApp(ctx context.Context, cfg config.Config) (App, error) {
 	ghSrv, err := sheets.NewService(ctx, option.WithCredentialsFile(cfg.GS.ServiceKeyPath))
 	if err != nil {
-		fmt.Println("не могу инициализировать google sheets")
+		log.Fatal("не могу инициализировать google sheets")
 	}
-	ghPhoneRepo := gs.NewPhoneRepository(*ghSrv)
-	ghFeedRepo := gs.NewFeedRepository(*ghSrv)
 
+	ghPhoneRepo := gs.NewPhoneRepository(*ghSrv)
 	phSrv := service.NewPhoneService(ghPhoneRepo)
+
+	ghFeedRepo := gs.NewFeedRepository(*ghSrv)
 	feedSrv := service.NewFeedService(ghFeedRepo)
 
-	feeds, err := feedSrv.Get(cfg.SpreadsheetID)
+	feedPolicy := policy.NewFeedPolicy(*feedSrv, *phSrv)
+
+	srv := priceplacement.NewServer(*feedPolicy, pb.UnimplementedFeedServiceServer{})
+
+	return App{
+		cfg:                  cfg,
+		productServiceServer: srv,
+	}, nil
+}
+
+func (a App) Run(ctx context.Context) error {
+
+	grp, ctx := errgroup.WithContext(ctx)
+	grp.Go(func() error {
+		return a.StartGRPC(ctx, a.productServiceServer)
+	})
+	return grp.Wait()
+}
+
+func (a App) StartGRPC(ctx context.Context, server pb.FeedServiceServer) error {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	if err != nil {
-		fmt.Printf("не могу получить настройки фидов: %s", err)
-	}
-	for _, feed := range feeds {
-		result := make([]string, 0)
-		fmt.Printf("Проверка %s. Url: %s\n", feed.Placement, feed.Url)
-		switch feed.Placement {
-		case entity.Realty:
-			lotRepo := realty.NewLotRepository()
-			lotSrv := service.NewLotService(lotRepo)
-			phUsecase := phone.NewPhoneUseCase(phSrv, lotSrv)
-			result, err = phUsecase.CheckNumbers(cfg.SpreadsheetID, feed.Url, feed.Placement)
-			if err != nil {
-				fmt.Printf("ошибка сопоставления: %s", err)
-			}
-		case entity.Cian:
-			lotRepo := cian.NewLotRepository()
-			lotSrv := service.NewLotService(lotRepo)
-			phUsecase := phone.NewPhoneUseCase(phSrv, lotSrv)
-			result, err = phUsecase.CheckNumbers(cfg.SpreadsheetID, feed.Url, feed.Placement)
-			if err != nil {
-				fmt.Printf("ошибка сопоставления: %s", err)
-			}
-		// TODO исправить сущность, когда разберусь
-		case entity.NotFound:
-			lotRepo := avito.NewLotRepository()
-			lotSrv := service.NewLotService(lotRepo)
-			phUsecase := phone.NewPhoneUseCase(phSrv, lotSrv)
-			result, err = phUsecase.CheckNumbers(cfg.SpreadsheetID, feed.Url, feed.Placement)
-			if err != nil {
-				fmt.Printf("ошибка сопоставления: %s", err)
-			}
-		case entity.Domclick:
-			lotRepo := domclick.NewLotRepository()
-			lotSrv := service.NewLotService(lotRepo)
-			phUsecase := phone.NewPhoneUseCase(phSrv, lotSrv)
-			result, err = phUsecase.CheckNumbers(cfg.SpreadsheetID, feed.Url, feed.Placement)
-			if err != nil {
-				fmt.Printf("ошибка сопоставления: %s", err)
-			}
-		default:
-			fmt.Printf("Я не умею обрабатывать данный тип фида: {%s}, проверьте настройки", feed.Placement)
-		}
-		if len(result) > 0 {
-			fmt.Println(strings.Join(result, "\n"))
-		}
+		log.Fatal("failed to create listener")
 	}
 
+	a.grpcServer = grpc.NewServer()
+
+	pb.RegisterFeedServiceServer(a.grpcServer, server)
+
+	if err := a.grpcServer.Serve(lis); err != nil {
+		log.Fatal(err)
+	}
+	return nil
 }

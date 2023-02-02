@@ -1,21 +1,21 @@
 package service
 
 import (
-	"checkphones/internal/domain/entity"
+	"price-placements-service/internal/domain/entity"
 )
 
 type PhoneRepository interface {
 	Get(spreadsheetID string) (phones []entity.Phone, err error)
 }
 
-type phoneService struct {
+type PhoneService struct {
 	repo PhoneRepository
 }
 
-func NewPhoneService(repo PhoneRepository) *phoneService {
-	return &phoneService{repo: repo}
+func NewPhoneService(repo PhoneRepository) *PhoneService {
+	return &PhoneService{repo: repo}
 }
 
-func (p phoneService) Get(spreadsheetID string) (phones []entity.Phone, err error) {
+func (p PhoneService) Get(spreadsheetID string) (phones []entity.Phone, err error) {
 	return p.repo.Get(spreadsheetID)
 }
