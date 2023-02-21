@@ -7,8 +7,17 @@ import (
 	"github.com/zfullio/price-placements-service/pb"
 )
 
+var placementFromPB = map[pb.Placement]entity.Placement{
+	pb.Placement_PLACEMENT_YANDEX_REALTY: entity.Realty,
+	pb.Placement_PLACEMENT_CIAN:          entity.Cian,
+	pb.Placement_PLACEMENT_AVITO:         entity.Avito,
+	pb.Placement_PLACEMENT_DOMCLICK:      entity.Domclick,
+}
+
 func (s Server) CheckPhonesAll(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {
-	res, err := s.policy.CheckPhonesAll(req.SpreadsheetId)
+	s.logger.Trace().Msg("CheckPhonesAll")
+
+	res, err := s.policy.CheckPhonesAll(ctx, req.SpreadsheetId)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +27,9 @@ func (s Server) CheckPhonesAll(ctx context.Context, req *pb.CheckRequest) (*pb.C
 	}, nil
 }
 func (s Server) CheckPhonesRealty(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {
-	res, err := s.policy.CheckPhonesRealty(req.SpreadsheetId)
+	s.logger.Trace().Msg("CheckPhonesRealty")
+
+	res, err := s.policy.CheckPhonesRealty(ctx, req.SpreadsheetId)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +39,9 @@ func (s Server) CheckPhonesRealty(ctx context.Context, req *pb.CheckRequest) (*p
 	}, nil
 }
 func (s Server) CheckPhonesCian(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {
-	res, err := s.policy.CheckPhonesCian(req.SpreadsheetId)
+	s.logger.Trace().Msg("CheckPhonesCian")
+
+	res, err := s.policy.CheckPhonesCian(ctx, req.SpreadsheetId)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +51,9 @@ func (s Server) CheckPhonesCian(ctx context.Context, req *pb.CheckRequest) (*pb.
 	}, nil
 }
 func (s Server) CheckPhonesAvito(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {
-	res, err := s.policy.CheckPhonesAvito(req.SpreadsheetId)
+	s.logger.Trace().Msg("CheckPhonesAvito")
+
+	res, err := s.policy.CheckPhonesAvito(ctx, req.SpreadsheetId)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +63,9 @@ func (s Server) CheckPhonesAvito(ctx context.Context, req *pb.CheckRequest) (*pb
 	}, err
 }
 func (s Server) CheckPhonesDomclick(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {
-	res, err := s.policy.CheckPhonesDomclick(req.SpreadsheetId)
+	s.logger.Trace().Msg("CheckPhonesDomclick")
+
+	res, err := s.policy.CheckPhonesDomclick(ctx, req.SpreadsheetId)
 	if err != nil {
 		return nil, err
 	}
@@ -59,19 +76,14 @@ func (s Server) CheckPhonesDomclick(ctx context.Context, req *pb.CheckRequest) (
 }
 
 func (s Server) ValidateFeed(ctx context.Context, req *pb.ValidateFeedRequest) (*pb.ValidateFeedResponse, error) {
-	var placement entity.Placement
-	switch req.Placement {
-	case pb.Placement_PLACEMENT_YANDEX_REALTY:
-		placement = entity.Realty
-	case pb.Placement_PLACEMENT_CIAN:
-		placement = entity.Cian
-	case pb.Placement_PLACEMENT_AVITO:
-		placement = entity.Avito
-	case pb.Placement_PLACEMENT_DOMCLICK:
-		placement = entity.Domclick
+	s.logger.Trace().Msg("ValidateFeed")
 
+	placement, ok := placementFromPB[req.Placement]
+	if !ok {
+		return nil, fmt.Errorf("not find placement: %s", placement)
 	}
-	results, err := s.policy.ValidateFeed(req.FeedUrl, placement)
+
+	results, err := s.policy.ValidateFeed(ctx, req.FeedUrl, placement)
 	if err != nil {
 		return &pb.ValidateFeedResponse{
 			Result: results,
@@ -81,12 +93,16 @@ func (s Server) ValidateFeed(ctx context.Context, req *pb.ValidateFeedRequest) (
 	if len(results) == 0 {
 		results = append(results, fmt.Sprintf("feed: %s. placement: %s. Все в порядке", req.FeedUrl, placement))
 	}
+
 	return &pb.ValidateFeedResponse{
 		Result: results,
 	}, nil
 }
 func (s Server) ValidateFeedAll(ctx context.Context, req *pb.ValidateFeedAllRequest) (*pb.ValidateFeedAllResponse, error) {
-	res, err := s.policy.ValidateFeedAll(req.SpreadsheetId)
+	s.logger.Trace().Msg("ValidateFeedAll")
+
+	res, err := s.policy.ValidateFeedAll(ctx, req.SpreadsheetId)
+
 	return &pb.ValidateFeedAllResponse{
 		Result: res,
 	}, err

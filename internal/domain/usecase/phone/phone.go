@@ -1,7 +1,9 @@
 package phone
 
 import (
+	"context"
 	"fmt"
+	"github.com/rs/zerolog"
 	"github.com/zfullio/price-placements-service/internal/domain/entity"
 )
 
@@ -16,42 +18,59 @@ type LotService interface {
 type phoneUseCase struct {
 	phoneService PhService
 	lotService   LotService
+	logger       *zerolog.Logger
 }
 
-func NewPhoneUseCase(phoneService PhService, lotService LotService) *phoneUseCase {
-	return &phoneUseCase{phoneService: phoneService, lotService: lotService}
+func NewPhoneUseCase(phoneService PhService, lotService LotService, logger *zerolog.Logger) *phoneUseCase {
+	useCaseLogger := logger.With().Str("usecase", "phone").Logger()
+
+	return &phoneUseCase{
+		phoneService: phoneService,
+		lotService:   lotService,
+		logger:       &useCaseLogger,
+	}
 }
 
-func (u phoneUseCase) CheckNumbers(spreadsheetID string, feedUrl string, placement entity.Placement) (result []string, err error) {
-	phones, err := u.phoneService.Get(spreadsheetID)
-	if err != nil {
-		return result, err
-	}
-	lots, err := u.lotService.Get(feedUrl)
-	if err != nil {
-		return result, err
-	}
-	objectsFromPhones := matchObjectFromPhones(phones, placement)
-	if objectsFromPhones == nil {
-		return result, fmt.Errorf("не могу найти согласованные номера для площадки: %s", placement)
-	}
-	objectsFromLots := matchObjectFromLots(lots)
-	for obj, v := range objectsFromLots {
-		lotObjectNums := v
-		phoneObjectNums, ok := objectsFromPhones[obj]
-		if !ok {
-			result = append(result, fmt.Sprintf("%s: %s Не нахожу ЖК '%s' в согласованных номерах\n", placement, feedUrl, obj))
-			continue
+func (u phoneUseCase) CheckNumbers(ctx context.Context, spreadsheetID string, feedUrl string, placement entity.Placement) ([]string, error) {
+	u.logger.Trace().Msg("CheckNumbers")
+	result := make([]string, 0)
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		phones, err := u.phoneService.Get(spreadsheetID)
+		if err != nil {
+			return nil, err
 		}
-		for _, lotObjectNum := range lotObjectNums {
-			for _, phoneObjectNum := range phoneObjectNums {
-				if lotObjectNum != phoneObjectNum {
-					result = append(result, fmt.Sprintf("Площадка %s. Объект: %s. Ожидалось: %v. Получено: %v", placement, obj, phoneObjectNum, lotObjectNum))
+
+		lots, err := u.lotService.Get(feedUrl)
+		if err != nil {
+			return nil, err
+		}
+
+		objectsFromPhones := matchObjectFromPhones(phones, placement)
+		if objectsFromPhones == nil {
+			return nil, fmt.Errorf("не могу найти согласованные номера для площадки: %s", placement)
+		}
+
+		objectsFromLots := matchObjectFromLots(lots)
+		for obj, v := range objectsFromLots {
+			lotObjectNums := v
+			phoneObjectNums, ok := objectsFromPhones[obj]
+			if !ok {
+				result = append(result, fmt.Sprintf("%s: %s Не нахожу ЖК '%s' в согласованных номерах\n", placement, feedUrl, obj))
+				continue
+			}
+			for _, lotObjectNum := range lotObjectNums {
+				for _, phoneObjectNum := range phoneObjectNums {
+					if lotObjectNum != phoneObjectNum {
+						result = append(result, fmt.Sprintf("Площадка %s. Объект: %s. Ожидалось: %v. Получено: %v", placement, obj, phoneObjectNum, lotObjectNum))
+					}
 				}
 			}
 		}
 	}
-	return result, err
+	return result, nil
 }
 
 func matchObjectFromLots(lots []entity.Lot) map[string][]int {

@@ -7,14 +7,9 @@ import (
 import "fmt"
 
 type Config struct {
-	App  `yaml:"app"`
 	GS   `yaml:"google_sheets"`
 	TG   `yaml:"tg"`
 	GRPC `yaml:"grpc"`
-}
-
-type App struct {
-	Name string `yaml:"name"`
 }
 
 type GS struct {
@@ -23,26 +18,28 @@ type GS struct {
 }
 
 type TG struct {
-	Token string `yaml:"token"`
-	Chat  int64  `yaml:"chat"`
+	IsEnabled bool   `yaml:"is_enabled" env:"TG_ENABLED"`
+	Token     string `yaml:"token" env:"TG_TOKEN"`
+	Chat      int64  `yaml:"chat" env:"TG_CHAT"`
 }
 
 type GRPC struct {
-	IP   string `yaml:"ip"`
-	Port int    `yaml:"port"`
+	IP   string `yaml:"ip" env:"GRPC_IP"`
+	Port int    `yaml:"port" env:"GRPC_PORT"`
 }
 
-func NewConfig(filePath string) (*Config, error) {
+func NewConfig(filePath string, useEnv bool) (*Config, error) {
 	cfg := &Config{}
-	fmt.Println(filePath)
-	err := cleanenv.ReadConfig(filePath, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("config error: %w", err)
-	}
-
-	err = cleanenv.ReadEnv(cfg)
-	if err != nil {
-		return nil, err
+	if useEnv {
+		err := cleanenv.ReadEnv(cfg)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := cleanenv.ReadConfig(filePath, cfg)
+		if err != nil {
+			return nil, fmt.Errorf("config error: %w", err)
+		}
 	}
 
 	return cfg, nil

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+	"github.com/rs/zerolog"
 	"github.com/zfullio/price-placements-service/internal/domain/entity"
 )
 
@@ -9,13 +11,24 @@ type PhoneRepository interface {
 }
 
 type PhoneService struct {
-	repo PhoneRepository
+	repo   PhoneRepository
+	logger *zerolog.Logger
 }
 
-func NewPhoneService(repo PhoneRepository) *PhoneService {
-	return &PhoneService{repo: repo}
+func NewPhoneService(repo PhoneRepository, logger *zerolog.Logger) *PhoneService {
+	serviceLogger := logger.With().Str("service", "phone").Logger()
+
+	return &PhoneService{
+		repo:   repo,
+		logger: &serviceLogger,
+	}
 }
 
 func (p PhoneService) Get(spreadsheetID string) (phones []entity.Phone, err error) {
-	return p.repo.Get(spreadsheetID)
+	p.logger.Trace().Msg("Get")
+	phones, err = p.repo.Get(spreadsheetID)
+	if err != nil {
+		return nil, fmt.Errorf("не могу разобрать фид: %w", err)
+	}
+	return phones, err
 }

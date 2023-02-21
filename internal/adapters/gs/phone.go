@@ -2,6 +2,7 @@ package gs
 
 import (
 	"fmt"
+	"github.com/rs/zerolog"
 	"github.com/zfullio/price-placements-service/internal/domain/entity"
 	"google.golang.org/api/sheets/v4"
 	"strconv"
@@ -10,18 +11,27 @@ import (
 
 type phoneRepository struct {
 	client sheets.Service
+	logger *zerolog.Logger
 }
 
-func NewPhoneRepository(client sheets.Service) *phoneRepository {
-	return &phoneRepository{client: client}
+func NewPhoneRepository(client sheets.Service, logger *zerolog.Logger) *phoneRepository {
+	repoLogger := logger.With().Str("repo", "phone").Str("type", "sheets").Logger()
+
+	return &phoneRepository{
+		client: client,
+		logger: &repoLogger,
+	}
 }
 
 func (pr phoneRepository) Get(spreadsheetID string) (phones []entity.Phone, err error) {
+	pr.logger.Trace().Msg("Get")
+
 	readRange := "// Номера!A2:D"
 	resp, err := pr.client.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
 		return nil, fmt.Errorf("api error: %w", err)
 	}
+
 	for _, row := range resp.Values {
 		object, ok := row[0].(string)
 		if !ok {

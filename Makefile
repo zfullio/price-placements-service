@@ -1,7 +1,8 @@
-APP_BIN = app/build/app
+gen:
+	protoc --go_out=. --go-grpc_out=.  api/grpc/feed-service.proto
+
+gen_python:
+	python -m grpc_tools.protoc -I api/grpc/ --python_out=./python --pyi_out=./python --grpc_python_out=./python api/grpc/feed-service.proto
 
 build:
-	go build -o $APP_BIN ./cmd/app/main.go
-
-gen:
-	protoc --proto_path=proto proto/*.proto --go_out=. --go-grpc_out=.
+	go build -o ./bin/server_app ./cmd/server/main.go

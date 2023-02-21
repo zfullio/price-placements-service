@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/nikoksr/notify"
+	"github.com/rs/zerolog"
 	"github.com/zfullio/price-placements-service/internal/adapters/gs"
 	"github.com/zfullio/price-placements-service/internal/config"
 	priceplacement "github.com/zfullio/price-placements-service/internal/controllers/grpc/v1"
@@ -13,7 +15,6 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 	"google.golang.org/grpc"
-	"log"
 	"net"
 )
 
@@ -21,51 +22,60 @@ type App struct {
 	cfg                  config.Config
 	grpcServer           *grpc.Server
 	productServiceServer pb.FeedServiceServer
+	Logger               *zerolog.Logger
+	Notify               notify.Notifier
 }
 
-func NewApp(ctx context.Context, cfg config.Config) (App, error) {
+func NewApp(ctx context.Context, logger *zerolog.Logger, cfg config.Config, notify notify.Notifier) App {
 	ghSrv, err := sheets.NewService(ctx, option.WithCredentialsFile(cfg.GS.ServiceKeyPath))
 	if err != nil {
-		log.Fatal("не могу инициализировать google sheets")
+		logger.Fatal().Err(err).Msg("can't init app")
 	}
 
-	ghPhoneRepo := gs.NewPhoneRepository(*ghSrv)
-	phSrv := service.NewPhoneService(ghPhoneRepo)
+	ghPhoneRepo := gs.NewPhoneRepository(*ghSrv, logger)
+	phSrv := service.NewPhoneService(ghPhoneRepo, logger)
 
-	ghFeedRepo := gs.NewFeedRepository(*ghSrv)
-	feedSrv := service.NewFeedService(ghFeedRepo)
+	ghFeedRepo := gs.NewFeedRepository(*ghSrv, logger)
+	feedSrv := service.NewFeedService(ghFeedRepo, logger)
 
-	feedPolicy := policy.NewFeedPolicy(*feedSrv, *phSrv)
+	feedPolicy := policy.NewFeedPolicy(*feedSrv, *phSrv, logger)
 
-	srv := priceplacement.NewServer(*feedPolicy, pb.UnimplementedFeedServiceServer{})
+	srv := priceplacement.NewServer(*feedPolicy, logger, pb.UnimplementedFeedServiceServer{})
 
 	return App{
 		cfg:                  cfg,
 		productServiceServer: srv,
-	}, nil
+		Logger:               logger,
+		Notify:               notify,
+	}
 }
 
 func (a App) Run(ctx context.Context) error {
 
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
-		return a.StartGRPC(ctx, a.productServiceServer)
+		return a.StartGRPC(a.productServiceServer)
 	})
 	return grp.Wait()
 }
 
-func (a App) StartGRPC(ctx context.Context, server pb.FeedServiceServer) error {
+func (a App) StartGRPC(server pb.FeedServiceServer) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	if err != nil {
-		log.Fatal("failed to create listener")
+		a.Logger.Fatal().Err(err).Msg("failed to create listener")
 	}
 
 	a.grpcServer = grpc.NewServer()
-
 	pb.RegisterFeedServiceServer(a.grpcServer, server)
 
+	a.Logger.Info().Msg(fmt.Sprintf(" GRPC запущен на %s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	err = a.Notify.Send(context.Background(), "Price-placements Service", fmt.Sprintf("gRPC запущен на %v:%v", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	if err != nil {
+		a.Logger.Fatal().Err(err).Msg("ошибка отправки уведомления")
+	}
+
 	if err := a.grpcServer.Serve(lis); err != nil {
-		log.Fatal(err)
+		a.Logger.Fatal().Err(err).Msg("can't start gRPC server")
 	}
 	return nil
 }

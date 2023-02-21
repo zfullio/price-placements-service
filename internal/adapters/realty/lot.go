@@ -2,6 +2,7 @@ package realty
 
 import (
 	"fmt"
+	"github.com/rs/zerolog"
 	placementsFeeds "github.com/zfullio/price-placements"
 	"github.com/zfullio/price-placements-service/internal/domain/entity"
 	"regexp"
@@ -11,17 +12,26 @@ import (
 
 type lotRepository struct {
 	client placementsFeeds.RealtyFeed
+	logger *zerolog.Logger
 }
 
-func NewLotRepository() *lotRepository {
-	return &lotRepository{client: placementsFeeds.RealtyFeed{}}
+func NewLotRepository(logger *zerolog.Logger) *lotRepository {
+	repoLogger := logger.With().Str("repo", "lot").Str("type", "realty").Logger()
+
+	return &lotRepository{
+		client: placementsFeeds.RealtyFeed{},
+		logger: &repoLogger,
+	}
 }
 
 func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
+	lr.logger.Trace().Str("url", url).Msg("Get")
+
 	err = lr.client.Get(url)
 	if err != nil {
 		return lots, fmt.Errorf("не могу разобрать фид: %w", err)
 	}
+
 	for i := 0; i < len(lr.client.Offer); i++ {
 		onlyDigitInt, err := phoneNumberToInt(lr.client.Offer[i].SalesAgent.Phone)
 		if err != nil {
@@ -34,6 +44,7 @@ func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
 		}
 		lots = append(lots, lot)
 	}
+
 	return lots, err
 }
 
@@ -63,10 +74,14 @@ func phoneNumberToInt(str string) (phone int, err error) {
 }
 
 func (lr lotRepository) Validate(url string) (results []string, err error) {
+	lr.logger.Trace().Str("url", url).Msg("Validate")
+
 	err = lr.client.Get(url)
 	if err != nil {
 		return results, fmt.Errorf("не могу разобрать фид: %w", err)
 	}
+
 	results = append(results, lr.client.Check()...)
+
 	return results, err
 }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "price-placements/pb";
+option go_package = "./pb";
 
 service FeedService{
   rpc CheckPhonesAll(CheckRequest) returns (CheckResponse);
