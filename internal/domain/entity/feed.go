@@ -1,7 +1,10 @@
 package entity
 
 type Feed struct {
-	Url       string
-	Placement Placement
 	Developer string
+	Placement Placement
+	AreaType  AreaType
+	Status    StatusFeed
+	Url       string
+	BaseFeed  Placement
 }

@@ -1,4 +1,4 @@
-package realty
+package cian
 
 import (
 	"fmt"
@@ -11,15 +11,15 @@ import (
 )
 
 type lotRepository struct {
-	client placementsFeeds.RealtyFeed
+	client placementsFeeds.CianFeed
 	logger *zerolog.Logger
 }
 
 func NewLotRepository(logger *zerolog.Logger) *lotRepository {
-	repoLogger := logger.With().Str("repo", "lot").Str("type", "realty").Logger()
+	repoLogger := logger.With().Str("repo", "lot").Str("type", "cian").Logger()
 
 	return &lotRepository{
-		client: placementsFeeds.RealtyFeed{},
+		client: placementsFeeds.CianFeed{},
 		logger: &repoLogger,
 	}
 }
@@ -32,14 +32,16 @@ func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
 		return lots, fmt.Errorf("не могу разобрать фид: %w", err)
 	}
 
-	for i := 0; i < len(lr.client.Offer); i++ {
-		onlyDigitInt, err := phoneNumberToInt(lr.client.Offer[i].SalesAgent.Phone)
+	for i := 0; i < len(lr.client.Object); i++ {
+		phone := lr.client.Object[i].Phones.PhoneSchema.CountryCode + lr.client.Object[i].Phones.PhoneSchema.Number
+		onlyDigitInt, err := phoneNumberToInt(phone)
 		if err != nil {
-			return nil, fmt.Errorf("не могу сконвертировать номер в число")
+			return nil, fmt.Errorf("не могу сконвертировать номер из фида '%s' в число", phone)
 		}
+
 		lot := entity.Lot{
-			ID:     lr.client.Offer[i].InternalID,
-			Object: optimizeObject(lr.client.Offer[i].BuildingName),
+			ID:     lr.client.Object[i].ExternalId,
+			Object: optimizeObject(lr.client.Object[i].JKSchema.Name),
 			Phone:  onlyDigitInt,
 		}
 		lots = append(lots, lot)

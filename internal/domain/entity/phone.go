@@ -1,10 +1,11 @@
 package entity
 
 type Phone struct {
-	Number    int
-	Developer string
-	Object    string
-	Placement Placement
+	Number         int
+	Developer      string
+	Object         string
+	ObjectExtended []string
+	Placement      Placement
 }
 
 func (p Phone) CheckNumber(obj string, num int) bool {

@@ -22,11 +22,11 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FeedServiceClient interface {
-	CheckPhonesAll(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
-	CheckPhonesRealty(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
-	CheckPhonesCian(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
-	CheckPhonesAvito(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
-	CheckPhonesDomclick(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
+	CheckPhonesAll(ctx context.Context, in *CheckPhonesAllRequest, opts ...grpc.CallOption) (*CheckPhonesAllResponse, error)
+	CheckPhonesRealty(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error)
+	CheckPhonesCian(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error)
+	CheckPhonesAvito(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error)
+	CheckPhonesDomclick(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error)
 	ValidateFeed(ctx context.Context, in *ValidateFeedRequest, opts ...grpc.CallOption) (*ValidateFeedResponse, error)
 	ValidateFeedAll(ctx context.Context, in *ValidateFeedAllRequest, opts ...grpc.CallOption) (*ValidateFeedAllResponse, error)
 }
@@ -39,8 +39,8 @@ func NewFeedServiceClient(cc grpc.ClientConnInterface) FeedServiceClient {
 	return &feedServiceClient{cc}
 }
 
-func (c *feedServiceClient) CheckPhonesAll(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
-	out := new(CheckResponse)
+func (c *feedServiceClient) CheckPhonesAll(ctx context.Context, in *CheckPhonesAllRequest, opts ...grpc.CallOption) (*CheckPhonesAllResponse, error) {
+	out := new(CheckPhonesAllResponse)
 	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesAll", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (c *feedServiceClient) CheckPhonesAll(ctx context.Context, in *CheckRequest
 	return out, nil
 }
 
-func (c *feedServiceClient) CheckPhonesRealty(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
-	out := new(CheckResponse)
+func (c *feedServiceClient) CheckPhonesRealty(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
+	out := new(CheckPhonesResponse)
 	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesRealty", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -57,8 +57,8 @@ func (c *feedServiceClient) CheckPhonesRealty(ctx context.Context, in *CheckRequ
 	return out, nil
 }
 
-func (c *feedServiceClient) CheckPhonesCian(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
-	out := new(CheckResponse)
+func (c *feedServiceClient) CheckPhonesCian(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
+	out := new(CheckPhonesResponse)
 	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesCian", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -66,8 +66,8 @@ func (c *feedServiceClient) CheckPhonesCian(ctx context.Context, in *CheckReques
 	return out, nil
 }
 
-func (c *feedServiceClient) CheckPhonesAvito(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
-	out := new(CheckResponse)
+func (c *feedServiceClient) CheckPhonesAvito(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
+	out := new(CheckPhonesResponse)
 	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesAvito", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -75,8 +75,8 @@ func (c *feedServiceClient) CheckPhonesAvito(ctx context.Context, in *CheckReque
 	return out, nil
 }
 
-func (c *feedServiceClient) CheckPhonesDomclick(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
-	out := new(CheckResponse)
+func (c *feedServiceClient) CheckPhonesDomclick(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
+	out := new(CheckPhonesResponse)
 	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesDomclick", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -106,11 +106,11 @@ func (c *feedServiceClient) ValidateFeedAll(ctx context.Context, in *ValidateFee
 // All implementations must embed UnimplementedFeedServiceServer
 // for forward compatibility
 type FeedServiceServer interface {
-	CheckPhonesAll(context.Context, *CheckRequest) (*CheckResponse, error)
-	CheckPhonesRealty(context.Context, *CheckRequest) (*CheckResponse, error)
-	CheckPhonesCian(context.Context, *CheckRequest) (*CheckResponse, error)
-	CheckPhonesAvito(context.Context, *CheckRequest) (*CheckResponse, error)
-	CheckPhonesDomclick(context.Context, *CheckRequest) (*CheckResponse, error)
+	CheckPhonesAll(context.Context, *CheckPhonesAllRequest) (*CheckPhonesAllResponse, error)
+	CheckPhonesRealty(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error)
+	CheckPhonesCian(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error)
+	CheckPhonesAvito(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error)
+	CheckPhonesDomclick(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error)
 	ValidateFeed(context.Context, *ValidateFeedRequest) (*ValidateFeedResponse, error)
 	ValidateFeedAll(context.Context, *ValidateFeedAllRequest) (*ValidateFeedAllResponse, error)
 	mustEmbedUnimplementedFeedServiceServer()
@@ -120,19 +120,19 @@ type FeedServiceServer interface {
 type UnimplementedFeedServiceServer struct {
 }
 
-func (UnimplementedFeedServiceServer) CheckPhonesAll(context.Context, *CheckRequest) (*CheckResponse, error) {
+func (UnimplementedFeedServiceServer) CheckPhonesAll(context.Context, *CheckPhonesAllRequest) (*CheckPhonesAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPhonesAll not implemented")
 }
-func (UnimplementedFeedServiceServer) CheckPhonesRealty(context.Context, *CheckRequest) (*CheckResponse, error) {
+func (UnimplementedFeedServiceServer) CheckPhonesRealty(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPhonesRealty not implemented")
 }
-func (UnimplementedFeedServiceServer) CheckPhonesCian(context.Context, *CheckRequest) (*CheckResponse, error) {
+func (UnimplementedFeedServiceServer) CheckPhonesCian(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPhonesCian not implemented")
 }
-func (UnimplementedFeedServiceServer) CheckPhonesAvito(context.Context, *CheckRequest) (*CheckResponse, error) {
+func (UnimplementedFeedServiceServer) CheckPhonesAvito(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPhonesAvito not implemented")
 }
-func (UnimplementedFeedServiceServer) CheckPhonesDomclick(context.Context, *CheckRequest) (*CheckResponse, error) {
+func (UnimplementedFeedServiceServer) CheckPhonesDomclick(context.Context, *CheckPhonesRequest) (*CheckPhonesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPhonesDomclick not implemented")
 }
 func (UnimplementedFeedServiceServer) ValidateFeed(context.Context, *ValidateFeedRequest) (*ValidateFeedResponse, error) {
@@ -155,7 +155,7 @@ func RegisterFeedServiceServer(s grpc.ServiceRegistrar, srv FeedServiceServer) {
 }
 
 func _FeedService_CheckPhonesAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckRequest)
+	in := new(CheckPhonesAllRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -167,13 +167,13 @@ func _FeedService_CheckPhonesAll_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/FeedService/CheckPhonesAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeedServiceServer).CheckPhonesAll(ctx, req.(*CheckRequest))
+		return srv.(FeedServiceServer).CheckPhonesAll(ctx, req.(*CheckPhonesAllRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FeedService_CheckPhonesRealty_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckRequest)
+	in := new(CheckPhonesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -185,13 +185,13 @@ func _FeedService_CheckPhonesRealty_Handler(srv interface{}, ctx context.Context
 		FullMethod: "/FeedService/CheckPhonesRealty",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeedServiceServer).CheckPhonesRealty(ctx, req.(*CheckRequest))
+		return srv.(FeedServiceServer).CheckPhonesRealty(ctx, req.(*CheckPhonesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FeedService_CheckPhonesCian_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckRequest)
+	in := new(CheckPhonesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -203,13 +203,13 @@ func _FeedService_CheckPhonesCian_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/FeedService/CheckPhonesCian",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeedServiceServer).CheckPhonesCian(ctx, req.(*CheckRequest))
+		return srv.(FeedServiceServer).CheckPhonesCian(ctx, req.(*CheckPhonesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FeedService_CheckPhonesAvito_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckRequest)
+	in := new(CheckPhonesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -221,13 +221,13 @@ func _FeedService_CheckPhonesAvito_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/FeedService/CheckPhonesAvito",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeedServiceServer).CheckPhonesAvito(ctx, req.(*CheckRequest))
+		return srv.(FeedServiceServer).CheckPhonesAvito(ctx, req.(*CheckPhonesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _FeedService_CheckPhonesDomclick_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckRequest)
+	in := new(CheckPhonesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func _FeedService_CheckPhonesDomclick_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/FeedService/CheckPhonesDomclick",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeedServiceServer).CheckPhonesDomclick(ctx, req.(*CheckRequest))
+		return srv.(FeedServiceServer).CheckPhonesDomclick(ctx, req.(*CheckPhonesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

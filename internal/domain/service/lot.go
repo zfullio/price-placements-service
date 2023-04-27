@@ -26,15 +26,22 @@ func NewLotService(repo LotRepository, logger *zerolog.Logger) *LotService {
 
 func (ls LotService) Get(url string) (lots []entity.Lot, err error) {
 	ls.logger.Trace().Msg("Get")
+
 	lots, err = ls.repo.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("can`t get lots: %w", err)
 	}
+
 	return lots, err
 }
 
 func (ls LotService) Validate(url string) (results []string, err error) {
 	ls.logger.Trace().Msg("Validate")
 
-	return ls.repo.Validate(url)
+	results, err = ls.repo.Validate(url)
+	if err != nil {
+		return nil, fmt.Errorf("can`t validate lots: %w", err)
+	}
+
+	return results, err
 }

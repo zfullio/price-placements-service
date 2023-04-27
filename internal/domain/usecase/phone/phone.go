@@ -5,42 +5,59 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/zfullio/price-placements-service/internal/domain/entity"
+	"strings"
 )
 
 type PhService interface {
-	Get(spreadsheetID string) (phones []entity.Phone, err error)
+	Get(spreadsheetID string, developer string) (phones []entity.Phone, err error)
 }
 
 type LotService interface {
 	Get(url string) (lots []entity.Lot, err error)
 }
 
-type phoneUseCase struct {
+type UseCase struct {
 	phoneService PhService
 	lotService   LotService
 	logger       *zerolog.Logger
 }
 
-func NewPhoneUseCase(phoneService PhService, lotService LotService, logger *zerolog.Logger) *phoneUseCase {
-	useCaseLogger := logger.With().Str("usecase", "phone").Logger()
+func NewPhoneUseCase(phoneService PhService, lotService LotService, logger *zerolog.Logger) *UseCase {
+	useCaseLogger := logger.With().Str("useCase", "phone").Logger()
 
-	return &phoneUseCase{
+	return &UseCase{
 		phoneService: phoneService,
 		lotService:   lotService,
 		logger:       &useCaseLogger,
 	}
 }
 
-func (u phoneUseCase) CheckNumbers(ctx context.Context, spreadsheetID string, feedUrl string, placement entity.Placement) ([]string, error) {
+func (u UseCase) CheckNumbers(ctx context.Context, spreadsheetID string, developer string, feedUrl string,
+	placement entity.Placement) ([]entity.CheckResult, error) {
+
 	u.logger.Trace().Msg("CheckNumbers")
-	result := make([]string, 0)
+
+	result := make([]entity.CheckResult, 0)
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	default:
-		phones, err := u.phoneService.Get(spreadsheetID)
-		if err != nil {
-			return nil, err
+		developers := strings.Split(developer, "/")
+		var phones []entity.Phone
+		for _, dev := range developers {
+			dev = strings.TrimSpace(dev)
+			phonesDev, err := u.phoneService.Get(spreadsheetID, dev)
+			if err != nil {
+				result = append(result, entity.CheckResult{
+					Developer: developer,
+					Placement: placement,
+					Base:      entity.UnknownPlacement,
+					Url:       feedUrl,
+					Message:   err.Error(),
+					Status:    entity.Error,
+				})
+			}
+			phones = append(phones, phonesDev...)
 		}
 
 		lots, err := u.lotService.Get(feedUrl)
@@ -58,18 +75,35 @@ func (u phoneUseCase) CheckNumbers(ctx context.Context, spreadsheetID string, fe
 			lotObjectNums := v
 			phoneObjectNums, ok := objectsFromPhones[obj]
 			if !ok {
-				result = append(result, fmt.Sprintf("%s: %s Не нахожу ЖК '%s' в согласованных номерах\n", placement, feedUrl, obj))
+				res := entity.CheckResult{
+					Developer: developer,
+					Placement: placement,
+					Base:      entity.UnknownPlacement,
+					Url:       feedUrl,
+					Message:   fmt.Sprintf("Не нахожу ЖК '%s' в согласованных номерах", obj),
+					Status:    entity.Error,
+				}
+				result = append(result, res)
 				continue
 			}
 			for _, lotObjectNum := range lotObjectNums {
 				for _, phoneObjectNum := range phoneObjectNums {
 					if lotObjectNum != phoneObjectNum {
-						result = append(result, fmt.Sprintf("Площадка %s. Объект: %s. Ожидалось: %v. Получено: %v", placement, obj, phoneObjectNum, lotObjectNum))
+						res := entity.CheckResult{
+							Developer: developer,
+							Placement: placement,
+							Base:      entity.UnknownPlacement,
+							Url:       feedUrl,
+							Message:   fmt.Sprintf("Объект: %s / Ожидалось: %v. Получено: %v", obj, phoneObjectNum, lotObjectNum),
+							Status:    entity.Warning,
+						}
+						result = append(result, res)
 					}
 				}
 			}
 		}
 	}
+
 	return result, nil
 }
 
@@ -95,6 +129,14 @@ func matchObjectFromPhones(phones []entity.Phone, placement entity.Placement) ma
 		_, ok := objects[phones[i].Object]
 		if !ok {
 			objects[phones[i].Object] = []int{phones[i].Number}
+			for _, alt := range phones[i].ObjectExtended {
+				_, ok := objects[alt]
+				if !ok {
+					objects[alt] = []int{phones[i].Number}
+					continue
+				}
+				objects[phones[i].Object] = append(objects[alt], phones[i].Number)
+			}
 			continue
 		}
 		objects[phones[i].Object] = append(objects[phones[i].Object], phones[i].Number)

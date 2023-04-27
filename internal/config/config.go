@@ -6,15 +6,15 @@ import (
 
 import "fmt"
 
-type Config struct {
-	GS   `yaml:"google_sheets"`
-	TG   `yaml:"tg"`
-	GRPC `yaml:"grpc"`
+type ServerConfig struct {
+	KeysDir string `yaml:"keys_dir" env:"KEYS_DIR"`
+	GS      `yaml:"google_sheets"`
+	TG      `yaml:"tg"`
+	GRPC    `yaml:"grpc"`
 }
 
 type GS struct {
-	ServiceKeyPath string `yaml:"service_key_path"`
-	SpreadsheetID  string `yaml:"spreadsheet_id"`
+	ServiceKey string `yaml:"service_key" env:"GS_SERVICE_KEY"`
 }
 
 type TG struct {
@@ -28,8 +28,8 @@ type GRPC struct {
 	Port int    `yaml:"port" env:"GRPC_PORT"`
 }
 
-func NewConfig(filePath string, useEnv bool) (*Config, error) {
-	cfg := &Config{}
+func NewServerConfig(filePath string, useEnv bool) (*ServerConfig, error) {
+	cfg := &ServerConfig{}
 	if useEnv {
 		err := cleanenv.ReadEnv(cfg)
 		if err != nil {

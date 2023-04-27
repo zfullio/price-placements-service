@@ -1,11 +1,10 @@
-app:
-  name: 'Проверка номеров в фидах'
+keys_dir: /path/to/keys
 
 google_sheets:
-  service_key_path: 'file.json'
-  spreadsheet_id: 'id spreadsheet with config'
+  service_key: 'file.json'
 
 tg:
+  is_enabled: true
   token: 'token'
   chat: "00000000"
 

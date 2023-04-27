@@ -1,15 +1,15 @@
-package app
+package server
 
 import (
 	"context"
 	"fmt"
 	"github.com/nikoksr/notify"
 	"github.com/rs/zerolog"
-	"github.com/zfullio/price-placements-service/internal/adapters/gs"
 	"github.com/zfullio/price-placements-service/internal/config"
 	priceplacement "github.com/zfullio/price-placements-service/internal/controllers/grpc/v1"
 	"github.com/zfullio/price-placements-service/internal/domain/policy"
 	"github.com/zfullio/price-placements-service/internal/domain/service"
+	"github.com/zfullio/price-placements-service/internal/repository/gs"
 	"github.com/zfullio/price-placements-service/pb"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/option"
@@ -19,15 +19,17 @@ import (
 )
 
 type App struct {
-	cfg                  config.Config
+	cfg                  config.ServerConfig
 	grpcServer           *grpc.Server
 	productServiceServer pb.FeedServiceServer
 	Logger               *zerolog.Logger
 	Notify               notify.Notifier
 }
 
-func NewApp(ctx context.Context, logger *zerolog.Logger, cfg config.Config, notify notify.Notifier) App {
-	ghSrv, err := sheets.NewService(ctx, option.WithCredentialsFile(cfg.GS.ServiceKeyPath))
+func NewApp(ctx context.Context, logger *zerolog.Logger, cfg config.ServerConfig, notify notify.Notifier) App {
+	ghServiceKey := cfg.KeysDir + "/" + cfg.GS.ServiceKey
+
+	ghSrv, err := sheets.NewService(ctx, option.WithCredentialsFile(ghServiceKey))
 	if err != nil {
 		logger.Fatal().Err(err).Msg("can't init app")
 	}
@@ -60,7 +62,7 @@ func (a App) Run(ctx context.Context) error {
 }
 
 func (a App) StartGRPC(server pb.FeedServiceServer) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.GRPC.Port))
 	if err != nil {
 		a.Logger.Fatal().Err(err).Msg("failed to create listener")
 	}
@@ -68,7 +70,7 @@ func (a App) StartGRPC(server pb.FeedServiceServer) error {
 	a.grpcServer = grpc.NewServer()
 	pb.RegisterFeedServiceServer(a.grpcServer, server)
 
-	a.Logger.Info().Msg(fmt.Sprintf(" GRPC запущен на %s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	a.Logger.Info().Msg(fmt.Sprintf("GRPC запущен на %s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	err = a.Notify.Send(context.Background(), "Price-placements Service", fmt.Sprintf("gRPC запущен на %v:%v", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	if err != nil {
 		a.Logger.Fatal().Err(err).Msg("ошибка отправки уведомления")

@@ -3,28 +3,67 @@ syntax = "proto3";
 option go_package = "./pb";
 
 service FeedService{
-  rpc CheckPhonesAll(CheckRequest) returns (CheckResponse);
-  rpc CheckPhonesRealty(CheckRequest) returns (CheckResponse);
-  rpc CheckPhonesCian(CheckRequest) returns (CheckResponse);
-  rpc CheckPhonesAvito(CheckRequest) returns (CheckResponse);
-  rpc CheckPhonesDomclick(CheckRequest) returns (CheckResponse);
+  rpc CheckPhonesAll(CheckPhonesAllRequest) returns (CheckPhonesAllResponse);
+  rpc CheckPhonesRealty(CheckPhonesRequest) returns (CheckPhonesResponse);
+  rpc CheckPhonesCian(CheckPhonesRequest) returns (CheckPhonesResponse);
+  rpc CheckPhonesAvito(CheckPhonesRequest) returns (CheckPhonesResponse);
+  rpc CheckPhonesDomclick(CheckPhonesRequest) returns (CheckPhonesResponse);
   rpc ValidateFeed(ValidateFeedRequest) returns (ValidateFeedResponse);
   rpc ValidateFeedAll(ValidateFeedAllRequest) returns (ValidateFeedAllResponse);
 }
 
-message CheckRequest{
-  string spreadsheet_id = 1;
+message CheckResult{
+  string developer = 1;
+  Placement placement = 2;
+  Placement base = 3;
+  string url = 4;
+  string message = 5;
+  Status result = 6;
 }
 
-message CheckResponse{
-  repeated string result = 1;
+message CheckPhonesRequest{
+  string spreadsheet_id = 1;
+  string developer = 2;
+  Placement placement = 3;
 }
+
+message CheckPhonesResponse{
+  repeated CheckResult result = 1;
+}
+
+message CheckPhonesAllRequest{
+  string spreadsheet_id = 1;
+  string developer = 2;
+}
+
+message CheckPhonesAllResponse{
+  repeated CheckResult result = 1;
+}
+
 
 enum Placement {
-  PLACEMENT_YANDEX_REALTY = 0;
+  PLACEMENT_UNKNOWN = 0;
   PLACEMENT_CIAN = 1;
   PLACEMENT_AVITO = 2;
   PLACEMENT_DOMCLICK = 3;
+  PLACEMENT_M2 = 4;
+  PLACEMENT_JCAT = 5;
+  PLACEMENT_GDETOTDOM = 6;
+  PLACEMENT_CALUGA_HOUSE = 7;
+  PLACEMENT_FLATOUTLET = 8;
+  PLACEMENT_GDEETOTDOM = 9;
+  PLACEMENT_HYBRID = 10;
+  PLACEMENT_AVAHO = 11;
+  PLACEMENT_NOVOSTROY_M = 12;
+  PLACEMENT_YANDEX_REALTY = 13;
+
+}
+
+enum Status {
+  UNKNOWN = 0;
+  WARNING = 1;
+  ERROR = 2;
+  OK = 3;
 }
 
 message ValidateFeedRequest{
@@ -33,13 +72,14 @@ message ValidateFeedRequest{
 }
 
 message ValidateFeedResponse{
-  repeated string result = 1;
+  repeated CheckResult result = 1;
 }
 
 message ValidateFeedAllRequest{
   string spreadsheet_id = 1;
+  string developer = 2;
 }
 
 message ValidateFeedAllResponse{
-  repeated string result = 1;
+  repeated CheckResult result = 1;
 }

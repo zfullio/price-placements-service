@@ -1,4 +1,4 @@
-package avito
+package realty
 
 import (
 	"fmt"
@@ -11,14 +11,15 @@ import (
 )
 
 type lotRepository struct {
-	client placementsFeeds.AvitoFeed
+	client placementsFeeds.RealtyFeed
 	logger *zerolog.Logger
 }
 
 func NewLotRepository(logger *zerolog.Logger) *lotRepository {
-	repoLogger := logger.With().Str("repo", "lot").Str("type", "avito").Logger()
+	repoLogger := logger.With().Str("repo", "lot").Str("type", "realty").Logger()
+
 	return &lotRepository{
-		client: placementsFeeds.AvitoFeed{},
+		client: placementsFeeds.RealtyFeed{},
 		logger: &repoLogger,
 	}
 }
@@ -31,51 +32,21 @@ func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
 		return lots, fmt.Errorf("не могу разобрать фид: %w", err)
 	}
 
-	developments, err := lr.getObjectMap()
-	if err != nil {
-		return lots, fmt.Errorf("не могу получить словарь DevelopmentID: %w", err)
-	}
-
-	for i := 0; i < len(lr.client.Ad); i++ {
-		onlyDigitInt, err := phoneNumberToInt(lr.client.Ad[i].ContactPhone)
+	for i := 0; i < len(lr.client.Offer); i++ {
+		phone := lr.client.Offer[i].SalesAgent.Phone
+		onlyDigitInt, err := phoneNumberToInt(phone)
 		if err != nil {
-			return nil, fmt.Errorf("не могу сконвертировать номер в число")
-		}
-		name, ok := developments[lr.client.Ad[i].NewDevelopmentId]
-		if !ok {
-			return lots, fmt.Errorf("не могу сопоставить DevelopmentID: %s", lr.client.Ad[i].NewDevelopmentId)
+			return nil, fmt.Errorf("не могу сконвертировать номер из фида '%s' в число", phone)
 		}
 		lot := entity.Lot{
-			ID:     lr.client.Ad[i].ID,
-			Object: optimizeObject(name),
+			ID:     lr.client.Offer[i].InternalID,
+			Object: optimizeObject(lr.client.Offer[i].BuildingName),
 			Phone:  onlyDigitInt,
 		}
 		lots = append(lots, lot)
 	}
 
 	return lots, err
-}
-
-func (lr lotRepository) getObjectMap() (map[string]string, error) {
-	lr.logger.Trace().Msg("getObjectMap")
-
-	objectMap := make(map[string]string, 0)
-	developments, err := lr.client.GetDevelopments()
-	if err != nil {
-		return objectMap, err
-	}
-
-	for _, region := range developments.Region {
-		for _, city := range region.City {
-			for _, object := range city.Object {
-				if _, ok := objectMap[object.ID]; ok != true {
-					objectMap[object.ID] = object.Name
-				}
-			}
-		}
-	}
-
-	return objectMap, nil
 }
 
 func optimizeObject(str string) string {

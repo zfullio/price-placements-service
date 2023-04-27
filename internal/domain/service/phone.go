@@ -7,7 +7,7 @@ import (
 )
 
 type PhoneRepository interface {
-	Get(spreadsheetID string) (phones []entity.Phone, err error)
+	Get(spreadsheetID string, developer string) (phones []entity.Phone, err error)
 }
 
 type PhoneService struct {
@@ -24,11 +24,13 @@ func NewPhoneService(repo PhoneRepository, logger *zerolog.Logger) *PhoneService
 	}
 }
 
-func (p PhoneService) Get(spreadsheetID string) (phones []entity.Phone, err error) {
+func (p PhoneService) Get(spreadsheetID string, developer string) (phones []entity.Phone, err error) {
 	p.logger.Trace().Msg("Get")
-	phones, err = p.repo.Get(spreadsheetID)
+
+	phones, err = p.repo.Get(spreadsheetID, developer)
 	if err != nil {
-		return nil, fmt.Errorf("не могу разобрать фид: %w", err)
+		return nil, fmt.Errorf("can`t get phones: %w", err)
 	}
+
 	return phones, err
 }
