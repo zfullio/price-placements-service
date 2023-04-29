@@ -265,7 +265,7 @@ func checkResultToPb(item entity.CheckResult) (*pb.CheckResult, error) {
 		Developer: item.Developer,
 		Placement: placement,
 		Base:      base,
-		Url:       item.Url,
+		Url:       item.URL,
 		Message:   item.Message,
 		Result:    status,
 	}, nil

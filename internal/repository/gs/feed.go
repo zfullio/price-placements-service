@@ -105,7 +105,7 @@ func (fr feedRepository) Get(spreadsheetID string, developer string) (feeds []en
 				Placement: placement,
 				AreaType:  areaType,
 				Status:    status,
-				Url:       url,
+				URL:       url,
 				BaseFeed:  baseFeed,
 			}
 			feeds = append(feeds, feed)

@@ -206,13 +206,13 @@ func (f FeedPolicy) CheckPhonesPlacement(ctx context.Context, feedsAll []entity.
 
 		results := make([]entity.CheckResult, 0)
 		for _, feed := range filteredFeeds {
-			result, err := phUseCase.CheckNumbers(ctx, spreadsheetID, feed.Developer, feed.Url, feed.Placement)
+			result, err := phUseCase.CheckNumbers(ctx, spreadsheetID, feed.Developer, feed.URL, feed.Placement)
 			if err != nil {
 				results = append(results, entity.CheckResult{
 					Developer: feed.Developer,
 					Placement: feed.Placement,
 					Base:      feed.BaseFeed,
-					Url:       feed.Url,
+					URL:       feed.URL,
 					Message:   err.Error(),
 					Status:    entity.Error,
 				})
@@ -226,7 +226,7 @@ func (f FeedPolicy) CheckPhonesPlacement(ctx context.Context, feedsAll []entity.
 					Developer: feed.Developer,
 					Placement: feed.Placement,
 					Base:      feed.BaseFeed,
-					Url:       feed.Url,
+					URL:       feed.URL,
 					Message:   "warnings not found",
 					Status:    entity.OK,
 				})
@@ -259,7 +259,7 @@ func (f FeedPolicy) ValidateFeed(ctx context.Context, feedUrl string, placement 
 			Placement: placement,
 			AreaType:  "",
 			Status:    entity.Unknown,
-			Url:       feedUrl,
+			URL:       feedUrl,
 			BaseFeed:  entity.UnknownPlacement,
 		})
 
@@ -285,7 +285,7 @@ func (f FeedPolicy) ValidateFeedAll(ctx context.Context, spreadsheetID string, d
 			case <-gCtx.Done():
 				return gCtx.Err()
 			default:
-				rawResult, err := f.ValidateFeed(gCtx, feed.Url, feed.Placement)
+				rawResult, err := f.ValidateFeed(gCtx, feed.URL, feed.Placement)
 				result := make([]entity.CheckResult, 0, len(rawResult))
 				for _, item := range rawResult {
 					item.Developer = feed.Developer
@@ -294,7 +294,7 @@ func (f FeedPolicy) ValidateFeedAll(ctx context.Context, spreadsheetID string, d
 						Developer: feed.Developer,
 						Placement: feed.Placement,
 						Base:      feed.BaseFeed,
-						Url:       feed.Url,
+						URL:       feed.URL,
 						Message:   item.Message,
 						Status:    item.Status,
 					})
@@ -383,7 +383,7 @@ func prepareResult(rawResult []string, feed *entity.Feed) (result []entity.Check
 				Developer: feed.Developer,
 				Placement: feed.Placement,
 				Base:      feed.BaseFeed,
-				Url:       feed.Url,
+				URL:       feed.URL,
 				Message:   item,
 				Status:    entity.Warning,
 			})
@@ -393,7 +393,7 @@ func prepareResult(rawResult []string, feed *entity.Feed) (result []entity.Check
 			Developer: feed.Developer,
 			Placement: feed.Placement,
 			Base:      feed.BaseFeed,
-			Url:       feed.Url,
+			URL:       feed.URL,
 			Message:   "warnings not found",
 			Status:    entity.OK,
 		})

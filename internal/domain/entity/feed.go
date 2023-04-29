@@ -5,6 +5,6 @@ type Feed struct {
 	Placement Placement
 	AreaType  AreaType
 	Status    StatusFeed
-	Url       string
+	URL       string
 	BaseFeed  Placement
 }

@@ -52,7 +52,7 @@ func (u UseCase) CheckNumbers(ctx context.Context, spreadsheetID string, develop
 					Developer: developer,
 					Placement: placement,
 					Base:      entity.UnknownPlacement,
-					Url:       feedUrl,
+					URL:       feedUrl,
 					Message:   err.Error(),
 					Status:    entity.Error,
 				})
@@ -79,7 +79,7 @@ func (u UseCase) CheckNumbers(ctx context.Context, spreadsheetID string, develop
 					Developer: developer,
 					Placement: placement,
 					Base:      entity.UnknownPlacement,
-					Url:       feedUrl,
+					URL:       feedUrl,
 					Message:   fmt.Sprintf("Не нахожу ЖК '%s' в согласованных номерах", obj),
 					Status:    entity.Error,
 				}
@@ -93,7 +93,7 @@ func (u UseCase) CheckNumbers(ctx context.Context, spreadsheetID string, develop
 							Developer: developer,
 							Placement: placement,
 							Base:      entity.UnknownPlacement,
-							Url:       feedUrl,
+							URL:       feedUrl,
 							Message:   fmt.Sprintf("Объект: %s / Ожидалось: %v. Получено: %v", obj, phoneObjectNum, lotObjectNum),
 							Status:    entity.Warning,
 						}

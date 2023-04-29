@@ -4,7 +4,7 @@ type CheckResult struct {
 	Developer string
 	Placement Placement
 	Base      Placement
-	Url       string
+	URL       string
 	Message   string
 	Status    StatusCheck
 }

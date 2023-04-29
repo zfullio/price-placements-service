@@ -6,5 +6,3 @@ const (
 	LIVING   AreaType = "Жилая недвижимость"
 	COMMERCE AreaType = "Коммерческая недвижимость"
 )
-
-var AreaTypesAll = []AreaType{LIVING, COMMERCE}
