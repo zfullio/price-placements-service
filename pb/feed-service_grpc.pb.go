@@ -41,7 +41,7 @@ func NewFeedServiceClient(cc grpc.ClientConnInterface) FeedServiceClient {
 
 func (c *feedServiceClient) CheckPhonesAll(ctx context.Context, in *CheckPhonesAllRequest, opts ...grpc.CallOption) (*CheckPhonesAllResponse, error) {
 	out := new(CheckPhonesAllResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesAll", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/CheckPhonesAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *feedServiceClient) CheckPhonesAll(ctx context.Context, in *CheckPhonesA
 
 func (c *feedServiceClient) CheckPhonesRealty(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
 	out := new(CheckPhonesResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesRealty", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/CheckPhonesRealty", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (c *feedServiceClient) CheckPhonesRealty(ctx context.Context, in *CheckPhon
 
 func (c *feedServiceClient) CheckPhonesCian(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
 	out := new(CheckPhonesResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesCian", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/CheckPhonesCian", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *feedServiceClient) CheckPhonesCian(ctx context.Context, in *CheckPhones
 
 func (c *feedServiceClient) CheckPhonesAvito(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
 	out := new(CheckPhonesResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesAvito", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/CheckPhonesAvito", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *feedServiceClient) CheckPhonesAvito(ctx context.Context, in *CheckPhone
 
 func (c *feedServiceClient) CheckPhonesDomclick(ctx context.Context, in *CheckPhonesRequest, opts ...grpc.CallOption) (*CheckPhonesResponse, error) {
 	out := new(CheckPhonesResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/CheckPhonesDomclick", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/CheckPhonesDomclick", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (c *feedServiceClient) CheckPhonesDomclick(ctx context.Context, in *CheckPh
 
 func (c *feedServiceClient) ValidateFeed(ctx context.Context, in *ValidateFeedRequest, opts ...grpc.CallOption) (*ValidateFeedResponse, error) {
 	out := new(ValidateFeedResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/ValidateFeed", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/ValidateFeed", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (c *feedServiceClient) ValidateFeed(ctx context.Context, in *ValidateFeedRe
 
 func (c *feedServiceClient) ValidateFeedAll(ctx context.Context, in *ValidateFeedAllRequest, opts ...grpc.CallOption) (*ValidateFeedAllResponse, error) {
 	out := new(ValidateFeedAllResponse)
-	err := c.cc.Invoke(ctx, "/FeedService/ValidateFeedAll", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/feeds.FeedService/ValidateFeedAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func _FeedService_CheckPhonesAll_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/CheckPhonesAll",
+		FullMethod: "/feeds.FeedService/CheckPhonesAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).CheckPhonesAll(ctx, req.(*CheckPhonesAllRequest))
@@ -182,7 +182,7 @@ func _FeedService_CheckPhonesRealty_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/CheckPhonesRealty",
+		FullMethod: "/feeds.FeedService/CheckPhonesRealty",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).CheckPhonesRealty(ctx, req.(*CheckPhonesRequest))
@@ -200,7 +200,7 @@ func _FeedService_CheckPhonesCian_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/CheckPhonesCian",
+		FullMethod: "/feeds.FeedService/CheckPhonesCian",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).CheckPhonesCian(ctx, req.(*CheckPhonesRequest))
@@ -218,7 +218,7 @@ func _FeedService_CheckPhonesAvito_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/CheckPhonesAvito",
+		FullMethod: "/feeds.FeedService/CheckPhonesAvito",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).CheckPhonesAvito(ctx, req.(*CheckPhonesRequest))
@@ -236,7 +236,7 @@ func _FeedService_CheckPhonesDomclick_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/CheckPhonesDomclick",
+		FullMethod: "/feeds.FeedService/CheckPhonesDomclick",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).CheckPhonesDomclick(ctx, req.(*CheckPhonesRequest))
@@ -254,7 +254,7 @@ func _FeedService_ValidateFeed_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/ValidateFeed",
+		FullMethod: "/feeds.FeedService/ValidateFeed",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).ValidateFeed(ctx, req.(*ValidateFeedRequest))
@@ -272,7 +272,7 @@ func _FeedService_ValidateFeedAll_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/FeedService/ValidateFeedAll",
+		FullMethod: "/feeds.FeedService/ValidateFeedAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedServiceServer).ValidateFeedAll(ctx, req.(*ValidateFeedAllRequest))
@@ -284,7 +284,7 @@ func _FeedService_ValidateFeedAll_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var FeedService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "FeedService",
+	ServiceName: "feeds.FeedService",
 	HandlerType: (*FeedServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
