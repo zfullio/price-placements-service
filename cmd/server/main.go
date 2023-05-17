@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+const version = "1.1.0"
 const appName = "Price placements service"
 
 func main() {
@@ -48,6 +49,8 @@ func main() {
 	} else {
 		logger.Info().Msg("configuration from ENV")
 	}
+
+	logger.Info().Msgf("version: %s", version)
 
 	cfg, err := config.NewServerConfig(*fileConfig, *useEnv)
 	if err != nil {
