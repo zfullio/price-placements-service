@@ -34,6 +34,7 @@ func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
 
 	for i := 0; i < len(lr.client.Object); i++ {
 		phone := lr.client.Object[i].Phones.PhoneSchema.CountryCode + lr.client.Object[i].Phones.PhoneSchema.Number
+
 		onlyDigitInt, err := phoneNumberToInt(phone)
 		if err != nil {
 			return nil, fmt.Errorf("не могу сконвертировать номер из фида '%s' в число", phone)
@@ -60,6 +61,7 @@ func optimizeObject(str string) string {
 	result = strings.ReplaceAll(result, "апарт-комплекс", "")
 	result = strings.ReplaceAll(result, "сити-комплекс", "")
 	result = strings.TrimSpace(result)
+
 	return result
 }
 
@@ -68,10 +70,12 @@ func phoneNumberToInt(str string) (phone int, err error) {
 	res := re.ReplaceAllString(str, "")
 	re = regexp.MustCompile(`([0-9]{11})`)
 	onlyDigitStr := string(re.Find([]byte(res)))
+
 	phone, err = strconv.Atoi(onlyDigitStr)
 	if err != nil {
 		return phone, fmt.Errorf("не могу сконвертировать номер в число")
 	}
+
 	return phone, err
 }
 

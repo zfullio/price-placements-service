@@ -17,6 +17,7 @@ type lotRepository struct {
 
 func NewLotRepository(logger *zerolog.Logger) *lotRepository {
 	repoLogger := logger.With().Str("repo", "lot").Str("type", "avito").Logger()
+
 	return &lotRepository{
 		client: placementsFeeds.AvitoFeed{},
 		logger: &repoLogger,
@@ -38,14 +39,17 @@ func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
 
 	for i := 0; i < len(lr.client.Ad); i++ {
 		phone := lr.client.Ad[i].ContactPhone
+
 		onlyDigitInt, err := phoneNumberToInt(phone)
 		if err != nil {
 			return nil, fmt.Errorf("не могу сконвертировать номер из фида '%s' в число", phone)
 		}
+
 		name, ok := developments[strings.TrimSpace(lr.client.Ad[i].NewDevelopmentId)]
 		if !ok {
 			return lots, fmt.Errorf("не могу сопоставить DevelopmentID: '%s'. AD: '%s'", lr.client.Ad[i].NewDevelopmentId, lr.client.Ad[i].ID)
 		}
+
 		lot := entity.Lot{
 			ID:     lr.client.Ad[i].ID,
 			Object: optimizeObject(name),
@@ -57,11 +61,12 @@ func (lr lotRepository) Get(url string) (lots []entity.Lot, err error) {
 	return lots, err
 }
 
-// Получает словарь объектов
+// Получает словарь объектов.
 func (lr lotRepository) getObjectMap() (map[string]string, error) {
 	lr.logger.Trace().Msg("getObjectMap")
 
 	objectMap := make(map[string]string, 0)
+
 	developments, err := lr.client.GetDevelopments()
 	if err != nil {
 		return objectMap, err
@@ -71,12 +76,12 @@ func (lr lotRepository) getObjectMap() (map[string]string, error) {
 		for _, city := range region.City {
 			for _, object := range city.Object {
 				if len(object.Housing) == 0 {
-					if _, ok := objectMap[strings.TrimSpace(object.ID)]; ok != true {
+					if _, ok := objectMap[strings.TrimSpace(object.ID)]; !ok {
 						objectMap[object.ID] = object.Name
 					}
 				} else {
 					for _, housing := range object.Housing {
-						if _, ok := objectMap[housing.ID]; ok != true {
+						if _, ok := objectMap[housing.ID]; !ok {
 							objectMap[housing.ID] = object.Name
 						}
 					}
@@ -84,6 +89,7 @@ func (lr lotRepository) getObjectMap() (map[string]string, error) {
 			}
 		}
 	}
+
 	return objectMap, nil
 }
 
@@ -98,6 +104,7 @@ func optimizeObject(str string) string {
 	result = strings.ReplaceAll(result, "апарт-комплекс", "")
 	result = strings.ReplaceAll(result, "сити-комплекс", "")
 	result = strings.TrimSpace(result)
+
 	return result
 }
 
@@ -107,10 +114,12 @@ func phoneNumberToInt(str string) (phone int, err error) {
 	res := re.ReplaceAllString(str, "")
 	re = regexp.MustCompile(`([0-9]{11})`)
 	onlyDigitStr := string(re.Find([]byte(res)))
+
 	phone, err = strconv.Atoi(onlyDigitStr)
 	if err != nil {
 		return phone, fmt.Errorf("не могу сконвертировать номер в число")
 	}
+
 	return phone, err
 }
 

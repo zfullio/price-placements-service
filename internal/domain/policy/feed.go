@@ -23,6 +23,7 @@ type FeedPolicy struct {
 
 func NewFeedPolicy(feedService service.FeedService, phoneService service.PhoneService, logger *zerolog.Logger) *FeedPolicy {
 	policyLogger := logger.With().Str("policy", "feed").Logger()
+
 	return &FeedPolicy{
 		feedService:  feedService,
 		lotService:   service.LotService{},
@@ -54,8 +55,9 @@ func (f FeedPolicy) CheckPhonesAll(ctx context.Context, spreadsheetID string, de
 		resultsCh := make(chan []entity.CheckResult, len(entity.PlacementsAll))
 		eg, gCtx := errgroup.WithContext(ctx)
 
-		for placement, _ := range mapPlacements {
+		for placement := range mapPlacements {
 			placement := placement
+
 			eg.Go(func() error {
 				select {
 				case <-gCtx.Done():
@@ -66,6 +68,7 @@ func (f FeedPolicy) CheckPhonesAll(ctx context.Context, spreadsheetID string, de
 						return fmt.Errorf("can't check %s: %w", string(placement), err)
 					}
 				}
+
 				return nil
 			})
 		}
@@ -101,6 +104,7 @@ func (f FeedPolicy) CheckPhonesRealty(ctx context.Context, spreadsheetID string,
 		}
 
 		result := <-resultsCh
+
 		return result, err
 	}
 }
@@ -115,8 +119,10 @@ func (f FeedPolicy) CheckPhonesCian(ctx context.Context, spreadsheetID string, d
 		if err != nil {
 			return nil, fmt.Errorf("spreadsheet_id: %s|ошибка получения настроек фидов: %w", spreadsheetID, err)
 		}
+
 		errCh := make(chan error)
 		resultsCh := make(chan []entity.CheckResult)
+
 		go func() {
 			err := f.CheckPhonesPlacement(ctx, feedsAll, spreadsheetID, entity.Cian, resultsCh)
 			if err != nil {
@@ -124,10 +130,12 @@ func (f FeedPolicy) CheckPhonesCian(ctx context.Context, spreadsheetID string, d
 			}
 			errCh <- nil
 		}()
+
 		err = <-errCh
 		if err != nil {
 			return nil, fmt.Errorf("ошибка проверки Cian: %w", err)
 		}
+
 		return <-resultsCh, err
 	}
 }
@@ -142,6 +150,7 @@ func (f FeedPolicy) CheckPhonesAvito(ctx context.Context, spreadsheetID string, 
 		if err != nil {
 			return nil, fmt.Errorf("spreadsheet_id: %s|ошибка получения настроек фидов: %w", spreadsheetID, err)
 		}
+
 		errCh := make(chan error)
 		resultsCh := make(chan []entity.CheckResult)
 
@@ -152,10 +161,12 @@ func (f FeedPolicy) CheckPhonesAvito(ctx context.Context, spreadsheetID string, 
 			}
 			errCh <- nil
 		}()
+
 		err = <-errCh
 		if err != nil {
 			return nil, fmt.Errorf("ошибка проверки Avito: %w", err)
 		}
+
 		return <-resultsCh, err
 	}
 }
@@ -170,6 +181,7 @@ func (f FeedPolicy) CheckPhonesDomclick(ctx context.Context, spreadsheetID strin
 		if err != nil {
 			return nil, fmt.Errorf("spreadsheet_id: %s|ошибка получения настроек фидов: %w", spreadsheetID, err)
 		}
+
 		errCh := make(chan error)
 		resultsCh := make(chan []entity.CheckResult)
 
@@ -180,10 +192,12 @@ func (f FeedPolicy) CheckPhonesDomclick(ctx context.Context, spreadsheetID strin
 			}
 			errCh <- nil
 		}()
+
 		err = <-errCh
 		if err != nil {
 			return nil, fmt.Errorf("ошибка проверки DomClick: %w", err)
 		}
+
 		return <-resultsCh, err
 	}
 }
@@ -195,16 +209,16 @@ func (f FeedPolicy) CheckPhonesPlacement(ctx context.Context, feedsAll []entity.
 		return ctx.Err()
 	default:
 		filteredFeeds := filterByPlacement(feedsAll, placement)
+
 		lotSrv, err := f.initLotServiceByPlacement(placement)
 		if err != nil {
 			return err
 		}
+
 		phUseCase := phone.NewPhoneUseCase(f.phoneService, lotSrv, f.logger)
-		if err != nil {
-			return err
-		}
 
 		results := make([]entity.CheckResult, 0)
+
 		for _, feed := range filteredFeeds {
 			result, err := phUseCase.CheckNumbers(ctx, spreadsheetID, feed.Developer, feed.URL, feed.Placement)
 			if err != nil {
@@ -216,6 +230,7 @@ func (f FeedPolicy) CheckPhonesPlacement(ctx context.Context, feedsAll []entity.
 					Message:   err.Error(),
 					Status:    entity.Error,
 				})
+
 				continue
 			}
 
@@ -233,6 +248,7 @@ func (f FeedPolicy) CheckPhonesPlacement(ctx context.Context, feedsAll []entity.
 			}
 		}
 		resultsCh <- results
+
 		return nil
 	}
 }
@@ -277,9 +293,12 @@ func (f FeedPolicy) ValidateFeedAll(ctx context.Context, spreadsheetID string, d
 
 	resultsAll := make([]entity.CheckResult, 0)
 	resultsCh := make(chan []entity.CheckResult, len(feedsAll))
+
 	var eg, gCtx = errgroup.WithContext(ctx)
+
 	for _, feed := range feedsAll {
 		feed := feed
+
 		eg.Go(func() error {
 			select {
 			case <-gCtx.Done():
@@ -308,6 +327,7 @@ func (f FeedPolicy) ValidateFeedAll(ctx context.Context, spreadsheetID string, d
 			}
 		})
 	}
+
 	eg.Go(func() error {
 		for i := 0; i < len(feedsAll); i++ {
 			select {
@@ -317,6 +337,7 @@ func (f FeedPolicy) ValidateFeedAll(ctx context.Context, spreadsheetID string, d
 				resultsAll = append(resultsAll, <-resultsCh...)
 			}
 		}
+
 		return nil
 	})
 
@@ -329,6 +350,7 @@ func (f FeedPolicy) ValidateFeedAll(ctx context.Context, spreadsheetID string, d
 
 func (f FeedPolicy) initLotServiceByPlacement(placement entity.Placement) (service.LotService, error) {
 	var lotRepo service.LotRepository
+
 	var lotSrv *service.LotService
 
 	switch placement {
@@ -368,11 +390,13 @@ func (f FeedPolicy) initLotServiceByPlacement(placement entity.Placement) (servi
 
 func filterByPlacement(feeds []entity.Feed, placement entity.Placement) []entity.Feed {
 	var result []entity.Feed
+
 	for _, feed := range feeds {
 		if feed.Placement == placement {
 			result = append(result, feed)
 		}
 	}
+
 	return result
 }
 

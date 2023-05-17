@@ -53,11 +53,11 @@ func NewApp(ctx context.Context, logger *zerolog.Logger, cfg config.ServerConfig
 }
 
 func (a App) Run(ctx context.Context) error {
-
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		return a.StartGRPC(a.productServiceServer)
 	})
+
 	return grp.Wait()
 }
 
@@ -71,6 +71,7 @@ func (a App) StartGRPC(server pb.FeedServiceServer) error {
 	pb.RegisterFeedServiceServer(a.grpcServer, server)
 
 	a.Logger.Info().Msg(fmt.Sprintf("GRPC запущен на %s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+
 	err = a.Notify.Send(context.Background(), "Price-placements Service", fmt.Sprintf("gRPC запущен на %v:%v", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	if err != nil {
 		a.Logger.Fatal().Err(err).Msg("ошибка отправки уведомления")
@@ -79,5 +80,6 @@ func (a App) StartGRPC(server pb.FeedServiceServer) error {
 	if err := a.grpcServer.Serve(lis); err != nil {
 		a.Logger.Fatal().Err(err).Msg("can't start gRPC server")
 	}
+
 	return nil
 }

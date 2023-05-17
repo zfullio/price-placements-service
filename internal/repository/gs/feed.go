@@ -27,6 +27,7 @@ func (fr feedRepository) Get(spreadsheetID string, developer string) (feeds []en
 	fr.logger.Trace().Msg("Get")
 
 	readRange := "// Фиды!A2:F"
+
 	resp, err := fr.client.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
 		return nil, fmt.Errorf("api error: %w", err)
@@ -42,12 +43,14 @@ func (fr feedRepository) Get(spreadsheetID string, developer string) (feeds []en
 		if !ok {
 			return nil, fmt.Errorf("не могу получить: 'застройщик' в gsheets")
 		}
+
 		client = strings.ToLower(client)
 
 		placementStr, ok := row[1].(string)
 		if !ok {
 			return nil, fmt.Errorf("не могу получить: 'портал' в gsheets")
 		}
+
 		placement, err := matchPlacement(placementStr)
 		if err != nil {
 			return nil, fmt.Errorf("не могу обработать: 'портал' в gsheets: %w", err)
@@ -97,6 +100,7 @@ func (fr feedRepository) Get(spreadsheetID string, developer string) (feeds []en
 		if !ok {
 			return nil, fmt.Errorf("не могу обработать url в gsheets")
 		}
+
 		url = strings.TrimSpace(url)
 
 		if client == strings.ToLower(developer) {
@@ -120,12 +124,14 @@ func (fr feedRepository) GetBaseFeed(spreadsheetID string) (map[entity.Placement
 	fr.logger.Trace().Msg("GetBaseFeed")
 
 	readRange := "// Как проверять!A2:B"
+
 	resp, err := fr.client.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
 		return nil, fmt.Errorf("api error: %w", err)
 	}
 
 	bases := make(map[entity.Placement]entity.Placement, len(resp.Values))
+
 	for _, row := range resp.Values {
 		placementStr, ok := row[0].(string)
 		if !ok {

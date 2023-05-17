@@ -60,16 +60,20 @@ func (s Server) CheckPhonesAll(ctx context.Context, req *pb.CheckPhonesAllReques
 
 	if err != nil {
 		methodLogger.Err(err).Msg(msgErrMethod)
+
 		return nil, err
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			methodLogger.Err(err).Msg(msgErrMethod)
+
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -87,16 +91,20 @@ func (s Server) CheckPhonesRealty(ctx context.Context, req *pb.CheckPhonesReques
 	rawResult, err := s.policy.CheckPhonesRealty(ctx, req.SpreadsheetId, req.Developer)
 	if err != nil {
 		methodLogger.Err(err).Msg(msgErrMethod)
+
 		return nil, err
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			methodLogger.Err(err).Msg(msgErrMethod)
+
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -114,16 +122,20 @@ func (s Server) CheckPhonesCian(ctx context.Context, req *pb.CheckPhonesRequest)
 	rawResult, err := s.policy.CheckPhonesCian(ctx, req.SpreadsheetId, req.Developer)
 	if err != nil {
 		methodLogger.Err(err).Msg(msgErrMethod)
+
 		return nil, err
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			methodLogger.Err(err).Msg(msgErrMethod)
+
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -141,16 +153,20 @@ func (s Server) CheckPhonesAvito(ctx context.Context, req *pb.CheckPhonesRequest
 	rawResult, err := s.policy.CheckPhonesAvito(ctx, req.SpreadsheetId, req.Developer)
 	if err != nil {
 		methodLogger.Err(err).Msg(msgErrMethod)
+
 		return nil, err
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			methodLogger.Err(err).Msg(msgErrMethod)
+
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -168,16 +184,20 @@ func (s Server) CheckPhonesDomclick(ctx context.Context, req *pb.CheckPhonesRequ
 	rawResult, err := s.policy.CheckPhonesDomclick(ctx, req.SpreadsheetId, req.Developer)
 	if err != nil {
 		methodLogger.Err(err).Msg(msgErrMethod)
+
 		return nil, err
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			methodLogger.Err(err).Msg(msgErrMethod)
+
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -206,11 +226,13 @@ func (s Server) ValidateFeed(ctx context.Context, req *pb.ValidateFeedRequest) (
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -228,15 +250,18 @@ func (s Server) ValidateFeedAll(ctx context.Context, req *pb.ValidateFeedAllRequ
 	rawResult, err := s.policy.ValidateFeedAll(ctx, req.SpreadsheetId, req.Developer)
 	if err != nil {
 		s.logger.Error().Err(err).Str("spreadsheet", req.SpreadsheetId).Msg("ValidateFeedAll")
+
 		return nil, err
 	}
 
 	result := make([]*pb.CheckResult, 0, len(rawResult))
+
 	for _, item := range rawResult {
 		res, err := checkResultToPb(item)
 		if err != nil {
 			return nil, err
 		}
+
 		result = append(result, res)
 	}
 
@@ -269,5 +294,4 @@ func checkResultToPb(item entity.CheckResult) (*pb.CheckResult, error) {
 		Message:   item.Message,
 		Result:    status,
 	}, nil
-
 }

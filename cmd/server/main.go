@@ -19,8 +19,11 @@ const appName = "Price placements service"
 
 func main() {
 	var fileConfig = flag.String("f", "config.yml", "configuration file")
+
 	var useEnv = flag.Bool("env", false, "use environment variables")
+
 	var trace = flag.Bool("trace", false, "switch trace logging")
+
 	flag.Parse()
 
 	buildInfo, _ := debug.ReadBuildInfo()
@@ -61,6 +64,7 @@ func main() {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Ошибка в сервисе: Telegram")
 	}
+
 	telegramService.AddReceivers(cfg.Chat)
 
 	appNotify := notify.New()

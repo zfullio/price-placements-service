@@ -17,30 +17,31 @@ type FeedService struct {
 
 func NewFeedService(repo FeedRepository, logger *zerolog.Logger) *FeedService {
 	serviceLogger := logger.With().Str("service", "feed").Logger()
+
 	return &FeedService{
 		repo:   repo,
 		logger: &serviceLogger,
 	}
 }
 
-func (fs FeedService) Get(spreadsheetId string, developer string) (feeds []entity.Feed, err error) {
+func (fs FeedService) Get(spreadsheetId string, developer string) ([]entity.Feed, error) {
 	fs.logger.Trace().Msg("Get")
 
-	feeds, err = fs.repo.Get(spreadsheetId, developer)
+	feeds, err := fs.repo.Get(spreadsheetId, developer)
 	if err != nil {
 		return nil, fmt.Errorf("can`t get feeds: %w", err)
 	}
 
-	return fs.repo.Get(spreadsheetId, developer)
+	return feeds, nil
 }
 
-func (fs FeedService) Validate(spreadsheetId string, developer string) (feeds []entity.Feed, err error) {
+func (fs FeedService) Validate(spreadsheetId string, developer string) ([]entity.Feed, error) {
 	fs.logger.Trace().Msg("Validate")
 
-	feeds, err = fs.repo.Get(spreadsheetId, developer)
+	feeds, err := fs.repo.Get(spreadsheetId, developer)
 	if err != nil {
 		return nil, fmt.Errorf("can`t get feeds: %w", err)
 	}
 
-	return fs.repo.Get(spreadsheetId, developer)
+	return feeds, nil
 }

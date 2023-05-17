@@ -18,6 +18,7 @@ type LotService struct {
 
 func NewLotService(repo LotRepository, logger *zerolog.Logger) *LotService {
 	serviceLogger := logger.With().Str("service", "lot").Logger()
+
 	return &LotService{
 		repo:   repo,
 		logger: &serviceLogger,

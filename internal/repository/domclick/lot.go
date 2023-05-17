@@ -53,6 +53,7 @@ func optimizeObject(str string) string {
 	result = strings.ReplaceAll(result, "апарт-комплекс", "")
 	result = strings.ReplaceAll(result, "сити-комплекс", "")
 	result = strings.TrimSpace(result)
+
 	return result
 }
 
@@ -61,10 +62,12 @@ func phoneNumberToInt(str string) (phone int, err error) {
 	res := re.ReplaceAllString(str, "")
 	re = regexp.MustCompile(`([0-9]{11})`)
 	onlyDigitStr := string(re.Find([]byte(res)))
+
 	phone, err = strconv.Atoi(onlyDigitStr)
 	if err != nil {
 		return phone, fmt.Errorf("не могу сконвертировать номер в число")
 	}
+
 	return phone, err
 }
 

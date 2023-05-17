@@ -27,6 +27,7 @@ func (pr phoneRepository) Get(spreadsheetID string, developer string) (phones []
 	pr.logger.Trace().Msg("Get")
 
 	readRange := "// Номера!A2:E"
+
 	resp, err := pr.client.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
 		return nil, fmt.Errorf("api error: %w", err)
@@ -37,6 +38,7 @@ func (pr phoneRepository) Get(spreadsheetID string, developer string) (phones []
 		if !ok {
 			return nil, fmt.Errorf("не могу получить: 'застройщик' в gsheets")
 		}
+
 		client = strings.ToLower(client)
 
 		object, ok := row[1].(string)
@@ -64,11 +66,10 @@ func (pr phoneRepository) Get(spreadsheetID string, developer string) (phones []
 			return nil, fmt.Errorf("не могу сконвертировать номер: '%s' в число в gsheets", number)
 		}
 
-		variationsRaw := make([]string, 0)
 		variationsClear := make([]string, 0)
 
 		if len(row) > 4 {
-			variationsRaw = strings.Split(row[4].(string), ",")
+			variationsRaw := strings.Split(row[4].(string), ",")
 			for _, item := range variationsRaw {
 				variationsClear = append(variationsClear, optimizeObject(item))
 			}

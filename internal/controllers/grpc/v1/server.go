@@ -14,6 +14,7 @@ type Server struct {
 
 func NewServer(feedPolicy policy.FeedPolicy, logger *zerolog.Logger, srv pb.UnimplementedFeedServiceServer) *Server {
 	apiLogger := logger.With().Str("api", "grpc").Logger()
+
 	return &Server{
 		policy:                         feedPolicy,
 		logger:                         &apiLogger,

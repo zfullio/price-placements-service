@@ -24,6 +24,7 @@ func matchPlacement(placement string) (entity.Placement, error) {
 func matchAreaType(areaType string) (entity.AreaType, error) {
 	areaType = strings.ToLower(areaType)
 	areaType = strings.TrimSpace(areaType)
+
 	switch areaType {
 	case "жилая":
 		return entity.LIVING, nil
@@ -37,6 +38,7 @@ func matchAreaType(areaType string) (entity.AreaType, error) {
 func matchStatus(status string) (entity.StatusFeed, error) {
 	status = strings.ToLower(status)
 	status = strings.TrimSpace(status)
+
 	switch status {
 	case "активен":
 		return entity.Active, nil
@@ -59,5 +61,6 @@ func optimizeObject(str string) string {
 	result = strings.ReplaceAll(result, "апарт-комплекс", "")
 	result = strings.ReplaceAll(result, "сити-комплекс", "")
 	result = strings.TrimSpace(result)
+
 	return result
 }
