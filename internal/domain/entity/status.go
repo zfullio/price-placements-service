@@ -15,4 +15,5 @@ const (
 	Active   StatusFeed = "активен"
 	Inactive StatusFeed = "неактивен"
 	Unknown  StatusFeed = "неизвестно"
+	Deleted  StatusFeed = "удалено"
 )

@@ -44,6 +44,8 @@ func matchStatus(status string) (entity.StatusFeed, error) {
 		return entity.Inactive, nil
 	case "неизвестно":
 		return entity.Unknown, nil
+	case "удалено":
+		return entity.Deleted, nil
 	default:
 		return msgNotFound, fmt.Errorf("unknown status: %s", status)
 	}
